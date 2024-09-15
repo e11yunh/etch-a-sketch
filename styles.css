@@ -1,0 +1,68 @@
+
+#main-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    padding: 10px 0;
+}
+
+#title {
+    font-size: 36px;
+    color: rgb(201, 255, 255);
+    text-shadow: -4px 0 rgb(199, 13, 236), 0px 3px black, 3px -3px black, 0 -1px black;
+    margin: 0;
+}
+
+#grid-container {
+    display: flex;
+    flex-direction: column;
+    width: 40vw;
+    height: 80vh;
+    border: 0.1px solid rgba(121, 114, 114, 0.6);
+}
+
+.grid-element {
+    border: 1px solid rgb(0, 0, 0, 0.6);
+    flex-grow: 1;
+    margin: 0;
+}
+
+.grid-row {
+    display: flex;
+    flex-grow: 1;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+
+#buttons-container {
+    justify-content: space-between;
+}
+
+.btn {
+    font-family: monospace;
+    font-weight: 600;
+    background-color: inherit;
+    border-radius: 7px;
+    padding: 2px 20px; 
+    cursor: pointer;
+}
+
+.active {
+    background-color: black;
+    color: white;
+}
+
+.btn-active {
+    background-color: #1e8449;
+    color: white;
+}
+
+.btn-rgb-active {
+    background-color: #c2eaba;
+    background-image: linear-gradient(319deg, #c2eaba 0%, #c5f4e0 37%, #efc2cf 100%);
+}
