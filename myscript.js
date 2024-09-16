@@ -1,8 +1,19 @@
 const gridContainer = document.querySelector("#grid-container");
 let new_size;
 let drawing_mode = false;
-let erase_mode = true;
+let erase_mode = false;
 let rgb_mode = false;
+
+
+function reset_modes() {
+    drawing_mode = false;
+    erase_mode = false;
+    rgb_mode = false;
+
+    document.querySelector('#erase-btn').classList.remove('btn-active');
+    document.querySelector('#draw-btn').classList.remove('btn-active');
+    document.querySelector('#rgb-btn').classList.remove('btn-rgb-active');
+};
 
 
 function generate_grid(x_num = 16, y_num = 16) {
@@ -24,8 +35,10 @@ function generate_grid(x_num = 16, y_num = 16) {
 };
 
 function reset_grid () {
+    // The following line removes the pre-existing grid so that a new one can be generated to replace it
     gridContainer.replaceChildren();
     generate_grid(new_size, new_size);
+    reset_modes();
 }
 
 function draw(event) {
@@ -36,6 +49,7 @@ function draw(event) {
 function erase(event) {
     event.currentTarget.classList.remove("active");
     event.currentTarget.style.backgroundColor = "white";
+    event.currentTarget.style.opacity = 1.0;
 };
 
 function generate_rgb (opacity=0.6) {
@@ -82,12 +96,14 @@ buttons.forEach((button) => {
     });
     button.addEventListener('click', (e) => {
         let btn_clicked = e.currentTarget;
-        let btn_id = btn_clicked.id
+        let btn_id = btn_clicked.id;
+
         switch (btn_id) {
             case "reset-btn":
                 reset_grid();
                 e.stopImmediatePropagation();
                 break;
+                
             case "resize-btn":
                 let valid_input = false;
                 while (!valid_input) {
@@ -107,19 +123,24 @@ buttons.forEach((button) => {
                 reset_grid();
                 e.stopPropagation();
                 break;
+
             case "draw-btn":
-                drawing_mode = !drawing_mode;
                 erase_mode = false;
                 rgb_mode = false;
-
-
+                drawing_mode = !drawing_mode;
 
                 const gridElem = document.querySelectorAll(".grid-element");
-                if (drawing_mode && (!erase_mode &&!rgb_mode)) {
+
+                if (drawing_mode) {
+                    document.querySelector('#erase-btn').classList.remove('btn-active');
+                    document.querySelector('#rgb-btn').classList.remove('btn-rgb-active');
+
                     btn_clicked.classList.toggle("btn-active");
                     gridElem.forEach((grid) => {
                         grid.addEventListener("mouseenter", draw);
-                        grid.addEventListener("mouseenter", darken_square)
+                        grid.addEventListener("mouseenter", darken_square);
+                        grid.removeEventListener("mouseenter", erase);
+                        grid.removeEventListener("mouseenter", draw_rainbow);
                     });
                 } else {
                     btn_clicked.classList.toggle("btn-active");
@@ -129,17 +150,24 @@ buttons.forEach((button) => {
                     });
                 };
                 break;
+
             case "erase-btn":
                 drawing_mode = false;
                 rgb_mode = false; 
                 erase_mode = !erase_mode;
 
                 const gridElemToErase = document.querySelectorAll(".grid-element");
-                
-                if ((!drawing_mode &&!rgb_mode) && erase_mode) {
+
+
+                if (erase_mode){
+                    document.querySelector('#draw-btn').classList.remove('btn-active');
+                    document.querySelector('#rgb-btn').classList.remove('btn-rgb-active');
+
                     btn_clicked.classList.toggle("btn-active");
                     gridElemToErase.forEach((grid) => {
                         grid.addEventListener("mouseenter", erase);
+                        grid.removeEventListener("mouseenter", draw);
+                        grid.removeEventListener("mouseenter", draw_rainbow);
                     });
                 } else {
                     btn_clicked.classList.toggle("btn-active");
@@ -148,27 +176,33 @@ buttons.forEach((button) => {
                     });
                 };
                 break;
+
             case "rgb-btn":
-                rgb_mode = !rgb_mode;
                 erase_mode = false;
                 drawing_mode = false;
+                rgb_mode = !rgb_mode;
 
                 const gridElemRGB = document.querySelectorAll(".grid-element");
 
                 if (rgb_mode) {
+                    document.querySelector('#erase-btn').classList.remove('btn-active');
+                    document.querySelector('#draw-btn').classList.remove('btn-active');
+
                     btn_clicked.classList.toggle("btn-rgb-active");
                     gridElemRGB.forEach((grid) => {
-                        let a = 0.25;
                         grid.addEventListener("mouseenter", draw_rainbow);
-                        grid.addEventListener("mouseenter", darken_square)
+                        grid.addEventListener("mouseenter", darken_square);
+                        grid.removeEventListener("mouseenter", draw);
+                        grid.removeEventListener("mouseenter", erase);
                     });
                 } else {
+                    btn_clicked.classList.toggle("btn-rgb-active");
                     gridElemRGB.forEach((grid) => {
-                        btn_clicked.classList.toggle("btn-rgb-active");
                         grid.removeEventListener("mouseenter", draw_rainbow);
-                        grid.addEventListener("mouseenter", darken_square);
+                        grid.removeEventListener("mouseenter", darken_square);
                     });
                 };
+                break;
         };
     });
 });
