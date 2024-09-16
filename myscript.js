@@ -6,8 +6,8 @@ let rgb_mode = false;
 
 
 function generate_grid(x_num = 16, y_num = 16) {
-    let gridH = x_num
-    let gridV = y_num
+    let gridH = x_num;
+    let gridV = y_num;
     for (let i = 0; i < gridV; i++) {
         const gridRow = document.createElement("div");
         gridRow.classList.add("grid-row");
@@ -38,7 +38,7 @@ function erase(event) {
     event.currentTarget.style.backgroundColor = "white";
 };
 
-function generate_rgb (opacity=0.8) {
+function generate_rgb (opacity=0.6) {
     const randomBetween = (min, max) => min + Math.floor(Math.random() * (max - min + 1))
     let r = randomBetween(0, 255);
     let g = randomBetween(0, 255);
@@ -50,6 +50,25 @@ function generate_rgb (opacity=0.8) {
 function draw_rainbow (event, opacity) {
 
     event.currentTarget.style.backgroundColor = generate_rgb(opacity);
+}
+
+function darken_square(event) {
+    const target = event.currentTarget;
+
+    // This line retrieves the opacity data attribute from the target
+    let currentOpacity = parseFloat(target.dataset.opacity);
+
+    if(isNaN(currentOpacity)) {
+        currentOpacity = 0;
+    };
+
+    currentOpacity = Math.min(currentOpacity + 0.1, 1.0);
+
+    // This line is needed in order to save/remember the new opacity value for each target
+    target.dataset.opacity = currentOpacity;
+
+    // This line applies the visual changes onto each grid 
+    target.style.opacity = currentOpacity;
 }
 
 // Event handler for buttons
@@ -91,30 +110,39 @@ buttons.forEach((button) => {
             case "draw-btn":
                 drawing_mode = !drawing_mode;
                 erase_mode = false;
-                btn_clicked.classList.toggle("btn-active");
+                rgb_mode = false;
+
+
 
                 const gridElem = document.querySelectorAll(".grid-element");
-                if (drawing_mode && !erase_mode) {
+                if (drawing_mode && (!erase_mode &&!rgb_mode)) {
+                    btn_clicked.classList.toggle("btn-active");
                     gridElem.forEach((grid) => {
                         grid.addEventListener("mouseenter", draw);
+                        grid.addEventListener("mouseenter", darken_square)
                     });
                 } else {
+                    btn_clicked.classList.toggle("btn-active");
                     gridElem.forEach((grid) => {
                         grid.removeEventListener("mouseenter", draw);
+                        grid.removeEventListener("mouseenter", darken_square)
                     });
                 };
                 break;
             case "erase-btn":
                 drawing_mode = false;
-                const gridElemToErase = document.querySelectorAll(".grid-element");
-                btn_clicked.classList.toggle("btn-active");
+                rgb_mode = false; 
                 erase_mode = !erase_mode;
+
+                const gridElemToErase = document.querySelectorAll(".grid-element");
                 
-                if (!drawing_mode && erase_mode) {
+                if ((!drawing_mode &&!rgb_mode) && erase_mode) {
+                    btn_clicked.classList.toggle("btn-active");
                     gridElemToErase.forEach((grid) => {
                         grid.addEventListener("mouseenter", erase);
                     });
                 } else {
+                    btn_clicked.classList.toggle("btn-active");
                     gridElemToErase.forEach((grid) => {
                         grid.removeEventListener("mouseenter", erase);
                     });
@@ -122,19 +150,23 @@ buttons.forEach((button) => {
                 break;
             case "rgb-btn":
                 rgb_mode = !rgb_mode;
-                btn_clicked.classList.toggle("btn-rgb-active");
+                erase_mode = false;
+                drawing_mode = false;
 
                 const gridElemRGB = document.querySelectorAll(".grid-element");
 
                 if (rgb_mode) {
+                    btn_clicked.classList.toggle("btn-rgb-active");
                     gridElemRGB.forEach((grid) => {
                         let a = 0.25;
-                        grid.addEventListener("mouseenter", (event) => draw_rainbow(event, a));
-
+                        grid.addEventListener("mouseenter", draw_rainbow);
+                        grid.addEventListener("mouseenter", darken_square)
                     });
                 } else {
                     gridElemRGB.forEach((grid) => {
+                        btn_clicked.classList.toggle("btn-rgb-active");
                         grid.removeEventListener("mouseenter", draw_rainbow);
+                        grid.addEventListener("mouseenter", darken_square);
                     });
                 };
         };
